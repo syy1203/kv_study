@@ -1,0 +1,36 @@
+CC = gcc
+FLAGS = -I ./NtyCo/core/ -L ./NtyCo/ -lntyco -lpthread -ldl 
+# FLAGS = -I ./NtyCo/core/ -L ./NtyCo/ -lntyco -lpthread -luring -ldl
+SRCS = kvstore.c ntyco.c  kvs_array.c kvs_rbtree.c kvs_hash.c kv_RDB.c reactor.c
+# SRCS = kvstore.c ntyco.c proactor.c kvs_array.c kvs_rbtree.c kvs_hash.c
+TESTCASE_SRCS = testcase.c -lpthread
+TARGET = kvstore
+SUBDIR = ./NtyCo/
+TESTCASE = testcase
+TEST_SIMPLE = test_simple
+
+OBJS = $(SRCS:.c=.o)
+
+
+all: $(SUBDIR) $(TARGET) $(TESTCASE) $(TEST_SIMPLE)
+
+$(SUBDIR): ECHO
+	make -C $@
+
+ECHO:
+	@echo $(SUBDIR)
+
+$(TARGET): $(OBJS) 
+	$(CC) -o $@ $^ $(FLAGS)
+
+$(TESTCASE): $(TESTCASE_SRCS)
+	$(CC) -o $@ $^
+
+$(TEST_SIMPLE): test_simple.c
+	$(CC) -o $@ $^ -lpthread
+
+%.o: %.c
+	$(CC) $(FLAGS) -c $^ -o $@
+
+clean: 
+	rm -rf $(OBJS) $(TARGET) $(TESTCASE) $(TEST_SIMPLE) 
